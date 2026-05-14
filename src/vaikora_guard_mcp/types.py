@@ -14,12 +14,17 @@ from pydantic import BaseModel, Field
 
 
 class DecisionOutcome(str, Enum):
-    """Possible outcomes of a policy evaluation."""
+    """Possible outcomes of a policy evaluation.
+
+    Mirrors the gateway's `gateway.core.types.Decision` enum so the two surfaces
+    stay in lockstep.
+    """
 
     ALLOW = "ALLOW"
     ALLOW_LOG = "ALLOW_LOG"
     CONSTRAIN = "CONSTRAIN"
     BLOCK = "BLOCK"
+    ERROR = "ERROR"
 
 
 class Decision(BaseModel):

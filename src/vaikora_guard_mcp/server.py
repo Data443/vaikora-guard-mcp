@@ -145,7 +145,7 @@ def build_server(settings: Settings | None = None) -> tuple[Server, VaikoraClien
                         "action": {"type": "string"},
                         "decision": {
                             "type": "string",
-                            "enum": ["ALLOW", "ALLOW_LOG", "CONSTRAIN", "BLOCK"],
+                            "enum": ["ALLOW", "ALLOW_LOG", "CONSTRAIN", "BLOCK", "ERROR"],
                         },
                         "receipt_id": {"type": "string"},
                         "metadata": {"type": "object", "additionalProperties": True},
