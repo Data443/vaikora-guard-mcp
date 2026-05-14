@@ -7,16 +7,11 @@ gateway at http://127.0.0.1:9000. Run only when the gateway stack is up
 
 from __future__ import annotations
 
-import asyncio
-import os
-import sys
-
 import httpx
 import pytest
 
 from vaikora_guard_mcp.client import VaikoraClient
 from vaikora_guard_mcp.settings import Settings
-
 
 GATEWAY_URL = "http://127.0.0.1:9000"
 ADMIN_KEY = "e2e_test_admin_key_local"
