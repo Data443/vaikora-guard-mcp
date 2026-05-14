@@ -111,14 +111,15 @@ class VaikoraClient:
     async def write_audit(
         self,
         action: str,
-        decision: DecisionOutcome,
+        decision: DecisionOutcome | str,
         receipt_id: str,
         metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Append an entry to the gateway audit log."""
+        decision_value = decision.value if isinstance(decision, DecisionOutcome) else str(decision)
         payload = {
             "action": action,
-            "decision": decision.value,
+            "decision": decision_value,
             "receipt_id": receipt_id,
             "metadata": metadata or {},
         }
