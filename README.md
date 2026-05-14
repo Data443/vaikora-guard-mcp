@@ -110,6 +110,59 @@ if result["decision"]["outcome"] in ("BLOCK",):
     raise PolicyViolation(result["decision"]["reason"])
 ```
 
+## Logging and visibility
+
+The server emits structured logs so operators can watch it live, post-hoc, and parse it with their existing tooling.
+
+**Where logs land:**
+
+| Destination | Purpose | Format |
+|-------------|---------|--------|
+| `stderr` | Live tail (Claude Desktop, Claude Code, and any MCP client capture this) | JSON or human-readable |
+| Rotating file | Post-hoc analysis, long-running operators | Same format as stderr |
+| `stdout` | Reserved for the MCP JSON-RPC protocol. **Never written to.** | n/a |
+
+**Default file paths:**
+
+| Platform | Path |
+|----------|------|
+| macOS | `~/Library/Logs/vaikora-guard-mcp/vaikora-guard-mcp.log` |
+| Linux | `${XDG_CACHE_HOME:-~/.cache}/vaikora-guard-mcp/vaikora-guard-mcp.log` |
+| Windows | `%LOCALAPPDATA%\vaikora-guard-mcp\logs\vaikora-guard-mcp.log` |
+
+Override the path with `VAIKORA_LOG_FILE=/your/path/vaikora.log`.
+
+**What gets logged:**
+
+| Event | Level | Fields |
+|-------|-------|--------|
+| `mcp.boot` | INFO | gateway_url, fail_closed, log_level, log_file, log_json |
+| `mcp.transport.ready` | INFO | transport |
+| `mcp.list_tools` / `mcp.list_resources` | DEBUG | (counts) |
+| `mcp.read_resource.start` / `.done` / `.error` | INFO / ERROR | uri, latency_ms, body_bytes |
+| `mcp.call_tool.start` / `.done` / `.error` | INFO / ERROR | tool, arg_keys, arg_preview, latency_ms, outcome, receipt_id, matched_policy |
+| `vaikora.http.ok` / `vaikora.http.error` | INFO / WARNING | method, path, status, latency_ms, outcome, receipt_id |
+| `vaikora.fallback` | ERROR | outcome, matched_policy, latency_ms, receipt_id, fail_closed |
+| `mcp.shutdown` | INFO | (none) |
+
+Every tool call carries a per-call `request_id` correlation token that threads through every log line for that call, so operators can pivot on a single id to see the whole flow.
+
+**Sensitive data handling:** API keys, JWTs, `Authorization: Bearer …` headers, basic-auth URL credentials, and GitHub-style tokens are scrubbed from log output. The redactor walks dicts recursively, so nested headers inside metadata also get scrubbed.
+
+**Tail it live (macOS):**
+
+```bash
+tail -f "$HOME/Library/Logs/vaikora-guard-mcp/vaikora-guard-mcp.log" | jq .
+```
+
+**Switch to human-readable mode for local debugging:**
+
+```bash
+export VAIKORA_LOG_JSON=false
+export VAIKORA_LOG_LEVEL=DEBUG
+vaikora-guard-mcp
+```
+
 ## Fail-closed by default
 
 If the Vaikora gateway is unreachable, the server returns a synthetic `BLOCK` decision with `matched_policy="gateway_unreachable"`. Set `VAIKORA_FAIL_CLOSED=false` for fail-open behavior. Fail-closed is the recommended posture for production agents handling regulated data.
