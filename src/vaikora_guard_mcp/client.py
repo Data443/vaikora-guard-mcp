@@ -83,11 +83,29 @@ class VaikoraClient:
 
     async def get_policies(self) -> PolicyConfig:
         """Read the current policy + entitlement configuration."""
+        start = time.monotonic()
+        path = "/v1/policies"
         try:
-            response = await self._http.get("/v1/policies")
+            response = await self._http.get(path)
             response.raise_for_status()
         except httpx.HTTPError as exc:
+            latency_ms = int((time.monotonic() - start) * 1000)
+            logger.warning(
+                "vaikora.http.error",
+                extra={"method": "GET", "path": path, "latency_ms": latency_ms, "error": str(exc)},
+            )
             raise VaikoraGatewayError(f"Could not fetch policies: {exc}") from exc
+        latency_ms = int((time.monotonic() - start) * 1000)
+        logger.info(
+            "vaikora.http.ok",
+            extra={
+                "method": "GET",
+                "path": path,
+                "status": response.status_code,
+                "latency_ms": latency_ms,
+                "response_bytes": len(response.content),
+            },
+        )
         return PolicyConfig.model_validate(response.json())
 
     async def write_audit(
@@ -104,11 +122,35 @@ class VaikoraClient:
             "receipt_id": receipt_id,
             "metadata": metadata or {},
         }
+        start = time.monotonic()
+        path = "/v1/audit"
         try:
-            response = await self._http.post("/v1/audit", json=payload)
+            response = await self._http.post(path, json=payload)
             response.raise_for_status()
         except httpx.HTTPError as exc:
+            latency_ms = int((time.monotonic() - start) * 1000)
+            logger.warning(
+                "vaikora.http.error",
+                extra={
+                    "method": "POST",
+                    "path": path,
+                    "latency_ms": latency_ms,
+                    "error": str(exc),
+                    "receipt_id": receipt_id,
+                },
+            )
             raise VaikoraGatewayError(f"Could not write audit entry: {exc}") from exc
+        latency_ms = int((time.monotonic() - start) * 1000)
+        logger.info(
+            "vaikora.http.ok",
+            extra={
+                "method": "POST",
+                "path": path,
+                "status": response.status_code,
+                "latency_ms": latency_ms,
+                "receipt_id": receipt_id,
+            },
+        )
         return response.json()
 
     async def _post_enforcement(self, path: str, payload: dict[str, Any]) -> EnforcementResult:
@@ -118,13 +160,36 @@ class VaikoraClient:
             response = await self._http.post(path, json=payload)
             response.raise_for_status()
         except httpx.HTTPError as exc:
-            logger.warning("Gateway call to %s failed: %s", path, exc)
+            latency_ms = int((time.monotonic() - start) * 1000)
+            logger.warning(
+                "vaikora.http.error",
+                extra={
+                    "method": "POST",
+                    "path": path,
+                    "latency_ms": latency_ms,
+                    "error": str(exc),
+                    "fail_closed": self._settings.fail_closed,
+                },
+            )
             return self._fallback_result(start, str(exc))
 
         latency_ms = int((time.monotonic() - start) * 1000)
         data = response.json()
         decision = Decision.model_validate(data["decision"])
         pipeline = [Decision.model_validate(d) for d in data.get("pipeline", [])]
+        logger.info(
+            "vaikora.http.ok",
+            extra={
+                "method": "POST",
+                "path": path,
+                "status": response.status_code,
+                "latency_ms": latency_ms,
+                "outcome": decision.outcome.value,
+                "matched_policy": decision.matched_policy,
+                "receipt_id": data.get("receipt_id"),
+                "pipeline_steps": len(pipeline),
+            },
+        )
         return EnforcementResult(
             decision=decision,
             receipt_id=data["receipt_id"],
@@ -146,9 +211,20 @@ class VaikoraClient:
             matched_policy="gateway_unreachable",
             severity="HIGH" if self._settings.fail_closed else "MEDIUM",
         )
+        receipt = f"fallback-{uuid.uuid4().hex}"
+        logger.error(
+            "vaikora.fallback",
+            extra={
+                "outcome": outcome.value,
+                "matched_policy": "gateway_unreachable",
+                "latency_ms": latency_ms,
+                "receipt_id": receipt,
+                "fail_closed": self._settings.fail_closed,
+            },
+        )
         return EnforcementResult(
             decision=decision,
-            receipt_id=f"fallback-{uuid.uuid4().hex}",
+            receipt_id=receipt,
             pipeline=[],
             latency_ms=latency_ms,
         )
