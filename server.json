@@ -1,0 +1,42 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.data443/vaikora-guard-mcp",
+  "title": "Vaikora Guard",
+  "description": "Policy-engine MCP server that evaluates AI agent actions against the Vaikora policy engine before execution. Returns ALLOW, ALLOW_LOG, CONSTRAIN, or BLOCK decisions with SHA-256 audit receipts.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/Data443/vaikora-guard-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://www.vaikora.com",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "vaikora-guard-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "VAIKORA_GATEWAY_URL",
+          "description": "URL of the Vaikora policy engine (vaikora-llm-gateway HTTP API).",
+          "isRequired": true,
+          "default": "http://localhost:8000"
+        },
+        {
+          "name": "VAIKORA_API_KEY",
+          "description": "API key for the Vaikora gateway.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "VAIKORA_FAIL_CLOSED",
+          "description": "Block when the gateway is unreachable. Defaults to true.",
+          "isRequired": false,
+          "default": "true"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "Add this to ~/.claude.json (or your team-shared Claude Code config) under the mcpServers key. The vaikora-guard server will be available in every Claude Code session.",
+  "mcpServers": {
+    "vaikora-guard": {
+      "type": "stdio",
+      "command": "vaikora-guard-mcp",
+      "env": {
+        "VAIKORA_GATEWAY_URL": "http://localhost:8000",
+        "VAIKORA_API_KEY": "replace-with-your-vaikora-api-key"
+      }
+    }
+  }
+}

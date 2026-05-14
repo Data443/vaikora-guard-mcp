@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vaikora-guard-mcp"
+version = "0.1.0"
+description = "Model Context Protocol server that enforces deterministic policy on AI tool calls using the Vaikora policy engine."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Data443 Risk Mitigation, Inc.", email = "support@data443.com" },
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "vaikora",
+    "ai-security",
+    "ai-governance",
+    "ai-runtime-control",
+    "policy-enforcement",
+    "agent-security",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.2.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+    "respx>=0.21.0",
+]
+
+[project.scripts]
+vaikora-guard-mcp = "vaikora_guard_mcp.__main__:main"
+
+[project.urls]
+Homepage = "https://www.vaikora.com"
+Documentation = "https://www.vaikora.com/docs"
+Repository = "https://github.com/Data443/vaikora-guard-mcp"
+Issues = "https://github.com/Data443/vaikora-guard-mcp/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vaikora_guard_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

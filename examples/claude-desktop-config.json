@@ -1,0 +1,15 @@
+{
+  "_comment": "Drop this into ~/Library/Application Support/Claude/claude_desktop_config.json on macOS or %APPDATA%\\Claude\\claude_desktop_config.json on Windows. Restart Claude Desktop after editing.",
+  "mcpServers": {
+    "vaikora-guard": {
+      "command": "vaikora-guard-mcp",
+      "args": [],
+      "env": {
+        "VAIKORA_GATEWAY_URL": "http://localhost:8000",
+        "VAIKORA_API_KEY": "replace-with-your-vaikora-api-key",
+        "VAIKORA_FAIL_CLOSED": "true",
+        "VAIKORA_LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
