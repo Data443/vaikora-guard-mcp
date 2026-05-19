@@ -1,13 +1,28 @@
 # Vaikora Guard MCP
 
-A Model Context Protocol server that puts deterministic policy enforcement in front of every AI agent tool call.
+> A Model Context Protocol server that puts deterministic policy enforcement in front of every AI agent tool call. Open source under MIT. Part of the open-core [Vaikora](https://vaikora.com/) AI runtime control gateway by Data443.
 
 [![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![MCP](https://img.shields.io/badge/MCP-1.x-0a192f?style=flat-square)](https://modelcontextprotocol.io/)
+[![PyPI](https://img.shields.io/pypi/v/vaikora-guard-mcp?style=flat-square)](https://pypi.org/project/vaikora-guard-mcp/)
 [![Vaikora](https://img.shields.io/badge/Vaikora-policy%20engine-329ED8?style=flat-square)](https://www.vaikora.com/)
 
 ---
+
+## About Vaikora
+
+Vaikora is an open-core AI runtime control gateway by [Data443](https://data443.com/). Every AI agent action gets checked against deterministic policy before it executes, and every decision is signed into a SHA-256 audit chain. Compliance presets ship for SOC 2 Type II, HIPAA, GDPR, PCI DSS, and ISO 27001.
+
+Two open-source components:
+
+- [`vaikora-llm-gateway`](https://github.com/Data443/vaikora-llm-gateway) is the reference gateway. Self-host in your own infrastructure.
+- `vaikora-guard-mcp` (this repo) is the MCP server companion. Drop it in front of MCP tools like Snowflake, Xero, GitHub, or any internal MCP integration.
+
+The commercial [Vaikora Control Plane](https://vaikora.com/pricing) (hosted by Data443) adds multi-tenant administration, the approvals UI, real-time dashboards, and a vendor SLA. Self-host the open-source path or buy the hosted product. Both share the same policy engine.
+
+---
+
 
 ## What this does
 
