@@ -79,31 +79,33 @@ def build_server(settings: Settings | None = None) -> tuple[Server, VaikoraClien
         ]
 
     @server.read_resource()
-    async def read_resource(uri: str) -> str:
+    async def read_resource(uri) -> str:
+        # The MCP SDK passes a pydantic AnyUrl, not a raw str. Normalize.
+        uri_str = str(uri)
         request_id = uuid.uuid4().hex[:12]
         set_request_id(request_id)
         start = time.monotonic()
-        logger.info("mcp.read_resource.start", extra={"uri": uri})
+        logger.info("mcp.read_resource.start", extra={"uri": uri_str})
         try:
-            if uri == "vaikora://policies":
+            if uri_str == "vaikora://policies":
                 config = await client.get_policies()
                 body = config.model_dump_json(indent=2)
-            elif uri == "vaikora://modules":
+            elif uri_str == "vaikora://modules":
                 body = json.dumps({"modules": list(MODULE_NAMES)}, indent=2)
             else:
-                logger.warning("mcp.read_resource.unknown", extra={"uri": uri})
-                raise ValueError(f"Unknown resource: {uri}")
+                logger.warning("mcp.read_resource.unknown", extra={"uri": uri_str})
+                raise ValueError(f"Unknown resource: {uri_str}")
         except Exception:
             logger.exception(
                 "mcp.read_resource.error",
-                extra={"uri": uri, "latency_ms": int((time.monotonic() - start) * 1000)},
+                extra={"uri": uri_str, "latency_ms": int((time.monotonic() - start) * 1000)},
             )
             set_request_id(None)
             raise
         logger.info(
             "mcp.read_resource.done",
             extra={
-                "uri": uri,
+                "uri": uri_str,
                 "latency_ms": int((time.monotonic() - start) * 1000),
                 "body_bytes": len(body),
             },
