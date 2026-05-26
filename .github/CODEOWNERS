@@ -1,15 +1,12 @@
 # Code owners for Data443/vaikora-guard-mcp.
 #
-# Patterns are evaluated bottom-up; the LAST matching pattern wins.
-# Anyone added here is auto-requested for review and must approve a PR
-# before it can merge (assuming branch protection requires code-owner review).
+# Default: any developer on the team can approve. Sensitive surfaces still
+# tag mazamizo21 for awareness, but team members can still approve.
 
-# Default owner for the whole repo.
-*       @mazamizo21
+* @Data443/developers
 
-# Sensitive surfaces get extra scrutiny.
-.github/workflows/      @mazamizo21
-.github/CODEOWNERS      @mazamizo21
-pyproject.toml          @mazamizo21
-server.json             @mazamizo21
-LICENSE                 @mazamizo21
+.github/workflows/      @mazamizo21 @Data443/developers
+.github/CODEOWNERS      @mazamizo21 @Data443/developers
+pyproject.toml          @mazamizo21 @Data443/developers
+server.json             @mazamizo21 @Data443/developers
+LICENSE                 @mazamizo21 @Data443/developers
