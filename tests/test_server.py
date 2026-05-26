@@ -7,6 +7,8 @@ from typing import Any
 
 import httpx
 import pytest
+from mcp.types import ReadResourceRequest, ReadResourceRequestParams
+from pydantic import AnyUrl
 
 from vaikora_guard_mcp.client import VaikoraClient
 from vaikora_guard_mcp.server import MODULE_NAMES, build_server
@@ -103,3 +105,29 @@ async def test_evaluate_round_trip_through_client() -> None:
     assert result.receipt_id == "sha256:ok"
     assert transport.calls[0][0] == "/v1/evaluate"
     assert transport.calls[0][1]["action"] == "read a public README file"
+
+
+@pytest.mark.asyncio
+async def test_read_resource_handler_accepts_anyurl() -> None:
+    """Regression: the MCP SDK passes pydantic.AnyUrl, not str, to read_resource.
+
+    Pre-0.1.1 server compared `uri == 'vaikora://modules'` (str equality) and
+    raised "Unknown resource" for every request even though the SDK had already
+    routed through list_resources to expose them.
+    """
+    server, client = build_server(_settings())
+    try:
+        handler = server.request_handlers[ReadResourceRequest]
+        req = ReadResourceRequest(
+            method="resources/read",
+            params=ReadResourceRequestParams(uri=AnyUrl("vaikora://modules")),
+        )
+        result = await handler(req)
+        # Result wraps a ServerResult with .root.contents
+        contents = result.root.contents
+        assert len(contents) == 1
+        text = contents[0].text
+        body = json.loads(text)
+        assert set(body["modules"]) == set(MODULE_NAMES)
+    finally:
+        await client.aclose()
